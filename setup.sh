@@ -119,7 +119,7 @@ fi
 
 iptables -t nat -A POSTROUTING -s 192.168.0.1/24 -j SNAT --to-source $IP
 
-cat >> /etc/ppp/chap-secrets <<END
+cat > /etc/ppp/chap-secrets <<END
 # Secrets for authentication using CHAP
 # client server secret IP addresses
 $NAME pptpd $PASS *
@@ -147,7 +147,7 @@ novjccomp
 nologfd
 END
 
-cat >> /etc/sysctl.conf <<END
+cat > /etc/sysctl.conf <<END
 net.ipv4.ip_forward=1
 END
 
