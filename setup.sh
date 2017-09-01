@@ -124,13 +124,13 @@ cat >> /etc/ppp/chap-secrets <<END
 # client server secret IP addresses
 $NAME pptpd $PASS *
 END
-cat >> /etc/pptpd.conf <<END
+cat > /etc/pptpd.conf <<END
 option /etc/ppp/options.pptpd
 logwtmp
 localip $IP
 remoteip 192.168.2.10-100
 END
-cat >> /etc/ppp/options.pptpd <<END
+cat > /etc/ppp/options.pptpd <<END
 name pptpd
 refuse-pap
 refuse-chap
