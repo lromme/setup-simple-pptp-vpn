@@ -100,6 +100,25 @@ then
    NAME="vpn"
 fi
 
+apt-get -y install wget || {
+  echo "Could not install wget, required to retrieve your IP address." 
+  exit 1
+}
+
+#find out external ip 
+IP=`wget -q -O - http://api.ipify.org`
+
+if [ "x$IP" = "x" ]
+then
+  echo "============================================================"
+  echo "  !!!  COULD NOT DETECT SERVER EXTERNAL IP ADDRESS  !!!"
+else
+  echo "============================================================"
+  echo "Detected your server external ip address: $IP"
+fi
+
+iptables -t nat -A POSTROUTING -s 192.168.0.1/24 -j SNAT --to-source $IP
+
 cat >/etc/ppp/chap-secrets <<END
 # Secrets for authentication using CHAP
 # client server secret IP addresses
@@ -108,7 +127,7 @@ END
 cat >/etc/pptpd.conf <<END
 option /etc/ppp/options.pptpd
 logwtmp
-localip 192.168.2.1
+localip $IP
 remoteip 192.168.2.10-100
 END
 cat >/etc/ppp/options.pptpd <<END
@@ -128,27 +147,17 @@ novjccomp
 nologfd
 END
 
-apt-get -y install wget || {
-  echo "Could not install wget, required to retrieve your IP address." 
-  exit 1
-}
+cat > /etc/sysctl.conf <<END
+net.ipv4.ip_forward=1
+END
 
-#find out external ip 
-IP=`wget -q -O - http://api.ipify.org`
+sysctl -p
 
-if [ "x$IP" = "x" ]
-then
-  echo "============================================================"
-  echo "  !!!  COULD NOT DETECT SERVER EXTERNAL IP ADDRESS  !!!"
-else
-  echo "============================================================"
-  echo "Detected your server external ip address: $IP"
-fi
 echo   ""
 echo   "VPN username = $NAME   password = $PASS"
 echo   "============================================================"
 sleep 2
 
-service pptpd restart
+service pptpd restart 
 
 exit 0
