@@ -35,8 +35,6 @@ If you trying set password only. It will generate Default user with Random passw
 example: sudo bash setup.sh -u vpn -p mypass
 
 Use without parameter [ sudo bash setup.sh ] to use default username and Random password
-
-
   -u,    --username             Enter the Username
   -p,    --password             Enter the Password
 "
@@ -119,17 +117,19 @@ fi
 
 iptables -t nat -A POSTROUTING -s 192.168.0.1/24 -j SNAT --to-source $IP
 
-cat > /etc/ppp/chap-secrets <<END
+cat >> /etc/ppp/chap-secrets <<END
 # Secrets for authentication using CHAP
 # client server secret IP addresses
-$NAME pptpd $PASS *
+$NAME * $PASS *
 END
+
 cat > /etc/pptpd.conf <<END
 option /etc/ppp/options.pptpd
 logwtmp
 localip $IP
 remoteip 192.168.2.10-100
 END
+
 cat > /etc/ppp/options.pptpd <<END
 name pptpd
 refuse-pap
